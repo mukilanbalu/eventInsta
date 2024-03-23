@@ -23,8 +23,8 @@ export default function ImageMasonry({images}) {
           <div key={index}>
             <img
             // className='photo-thumbnail'
-              srcSet={`${item.thumbnail}?w=162&auto=format&dpr=2 2x`}
-              src={`${item.url}?w=162&auto=format`}
+              srcSet={`${item.url}`}
+              src={`${item.url}`}
               alt={item.name}
               loading="lazy"
               style={{

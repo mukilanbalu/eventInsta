@@ -1,5 +1,5 @@
 "use client";
-import { Box, CircularProgress, Fab } from "@mui/material";
+import { Box, CircularProgress, Fab, Snackbar } from "@mui/material";
 import React, { useEffect, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
@@ -27,6 +27,10 @@ const Page = () => {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [filePreviews, setFilePreviews] = useState([]);
     const [uploading, setUploading] = useState(true);
+    const [status, setStatus] = useState({
+        open: false,
+        text: ""
+    })
 
 
     useEffect(() => {
@@ -36,7 +40,6 @@ const Page = () => {
     const getImages = () => {
         axios.get('/api/image').then((res) => {
             if (res.status === 200) {
-                // const previews = res?.data?data?.map((file) => URL.createObjectURL(file));
                 setFilePreviews(res?.data?.data);
             }
         }).catch((err) => console.log(err))
@@ -44,13 +47,9 @@ const Page = () => {
     }
 
     const handleFileChange = async (e: Event) => {
-        setUploading(true);
-        e.preventDefault();
         e.stopPropagation();
         const files = Array.from(e.target.files);
         setSelectedFiles(files);
-
-        console.log("file change")
 
         // Upload files immediately upon selection
         try {
@@ -64,31 +63,40 @@ const Page = () => {
                     'Content-Type': 'multipart/form-data',
                 },
             }).then((res) => {
-                console.log('Files uploaded successfully', res);
-                getImages();
-
+                if (res.status == 200) {
+                    setStatus({ open: true, text: 'Files uploaded successfully' })
+                    getImages();
+                } else {
+                    setStatus({ open: true, text: 'Files uploaded failed' })
+                }
             })
 
         } catch (error) {
-            console.error('Error uploading files:', error);
+            setStatus({ open: true, text: 'Files uploaded failed' })
+
         } finally {
             setUploading(false);
         }
     };
 
+    const handleClose = () => {
+        setStatus({ open: false, text: "" })
+    }
+
     return (
-        <Box sx={{ width: "100%", p: "5px" }}>
-            { uploading ?  <CircularProgress size={20} sx={{color :"#fff"}}/> :
-             filePreviews?.length ? <ImageMasonry images={filePreviews} /> : "No image found"}
+        <Box sx={{ width: "100%", p: "5px" , display:"flex", justifyContent:"center", alignItems:"center", minHeight:"80vh" }}>
+            
+            {uploading ? <CircularProgress size={40} sx={{ color: "#fff" }} /> :
+            <ImageMasonry images={filePreviews} /> }
 
             <Button
                 component="label"
                 role={undefined}
                 variant="contained"
                 tabIndex={-1}
-                startIcon={uploading ? 
-                <CircularProgress size={20} sx={{color :"#fff"}}/>
-                :   <AddAPhoto sx={{ margin: "0px" }} />}
+                startIcon={uploading ?
+                    <CircularProgress size={20} sx={{ color: "#fff" }} />
+                    : <AddAPhoto sx={{ margin: "0px" }} />}
                 sx={{
                     position: "fixed",
                     bottom: "20px",
@@ -106,12 +114,18 @@ const Page = () => {
                     type="file"
                     id="file"
                     name="file"
-                    multiple
                     accept="image/*"
                     onChange={(e) => handleFileChange(e)} />
 
             </Button>
-
+            {status?.open && <Snackbar
+                open={true}
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                autoHideDuration={4000}
+                onClose={handleClose}
+                message={status?.text}
+                
+            />}
         </Box>
     );
 }
