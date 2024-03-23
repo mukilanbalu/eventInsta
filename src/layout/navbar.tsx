@@ -42,13 +42,12 @@ export default function NavBar(props: Props) {
   };
 
   const handleRedirect =(item)=>{
-    console.log(item)
     router.push(`/${item.toLocaleLowerCase()}`)
   }
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-      <img alt="logo" src="/e-logo.png" width={20} height={20}/>
+      <img alt="logo" src="/logo.png"  height={25}/>
       <Divider />
       <List>
         {navItems.map((item) => (
@@ -66,30 +65,26 @@ export default function NavBar(props: Props) {
   const container = window !== undefined ? () => window().document.body : undefined;
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', boxShadow:"1px solid #3e3e3e" }}>
       <CssBaseline />
-      <AppBar component="nav">
+      <AppBar component="nav" sx={{background:"#fff"}}>
         <Toolbar>
           <IconButton
             color="inherit"
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
+            sx={{ mr: 2, display: { sm: 'none' }, color:"#000" }}
           >
             <MenuIcon />
           </IconButton>
-          <Typography
-            variant="h5"
-            component="div"
-            sx={{ flexGrow: 1, display: { xs: 'block', sm: 'block' }}}
-          >
-           Event Insta
-          </Typography>
+          <Box sx={{width : "100%"}}>
+                <img alt="logo" src="/logo.png" width={100} />
+          </Box>
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
             {navItems.map((item) => (
               <Link className={`link ${pathname === `/${item.toLocaleLowerCase()}` ? 'active' : ''}`}
-               key={item} href={`${item.toLocaleLowerCase()}`} sx={{ color: '#fff',mx:"5px" }}>
+               key={item} href={`${item.toLocaleLowerCase()}`} sx={{ color: '#000',mx:"5px" }}>
                 {item}
               </Link>
             ))}

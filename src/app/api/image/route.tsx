@@ -11,7 +11,7 @@ const imagekit = new ImageKit({
 export async function GET(req, res) {
     try {
       const result = await new Promise((resolve, reject) => {
-        imagekit.listFiles({ skip: 0, limit: 100 }, (error, result) => {
+        imagekit.listFiles({ skip: 0, limit: 100 , sort: "DESC_CREATED",  searchQuery : 'published = true'}, (error, result) => {
           if (error) {
             reject(error);
           } else {

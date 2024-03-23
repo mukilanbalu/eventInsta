@@ -5,7 +5,7 @@ import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import axios from "axios";
 import ImageMasonry from "./masonry";
-import { AddAPhoto  } from "@mui/icons-material";
+import { AddAPhoto } from "@mui/icons-material";
 
 
 const VisuallyHiddenInput = styled('input')({
@@ -39,22 +39,25 @@ const Page = () => {
 
     const getImages = () => {
         setLoading(true)
+        setFilePreviews([]);
+
         axios.get('/api/image').then((res) => {
             if (res.status === 200) {
                 setFilePreviews(res?.data?.data);
             }
-        }).catch((err) => console.log(err))
-        setLoading(false)
+        }).catch((err) => console.log(err)).finally(() => {
+            setLoading(false)
+        })
     }
 
     const handleFileChange = async (e: Event) => {
         e.stopPropagation();
         const files = Array.from(e.target.files);
         setSelectedFiles(files);
+        setUploading(true);
 
         // Upload files immediately upon selection
         try {
-            setUploading(true);
 
             const formData = new FormData();
             files.forEach((file) => formData.append('file', file));
@@ -66,7 +69,11 @@ const Page = () => {
             }).then((res) => {
                 if (res.status == 200) {
                     setStatus({ open: true, text: 'File uploaded successfully' })
-                    getImages();
+                    setUploading(false);
+                    setTimeout(() => {
+                        getImages();;
+                      }, "3000");
+                     
                 } else {
                     setStatus({ open: true, text: 'File upload failed' })
                 }
@@ -84,19 +91,21 @@ const Page = () => {
     }
 
     return (
-        <Box sx={{ width: "100%", p: "5px" , display:"flex", justifyContent:"center", alignItems:"center", minHeight:"80vh" }}>
-            
+        <Box sx={{ width: "100%", p: "5px", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh" }}>
+
             {loading ? <CircularProgress size={40} sx={{ color: "#fff" }} /> :
-            <ImageMasonry images={filePreviews} /> }
+                <ImageMasonry images={filePreviews} />}
 
             <Button
                 component="label"
                 role={undefined}
                 variant="contained"
                 tabIndex={-1}
-                startIcon={uploading ?
-                    <CircularProgress size={20} sx={{ color: "#fff" }} />
-                    : <AddAPhoto sx={{ margin: "0px" }} />}
+                startIcon={
+                    uploading ?
+                        <CircularProgress size={25} sx={{ color: "#fff" }} />
+                        : <AddAPhoto sx={{ margin: "0px" }} />
+                }
                 sx={{
                     position: "fixed",
                     bottom: "20px",
@@ -124,7 +133,7 @@ const Page = () => {
                 autoHideDuration={4000}
                 onClose={handleClose}
                 message={status?.text}
-                
+
             />}
         </Box>
     );
