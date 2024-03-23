@@ -1,12 +1,11 @@
 "use client";
-import { Box, CircularProgress, Fab, Snackbar } from "@mui/material";
+import { Box, CircularProgress, Snackbar } from "@mui/material";
 import React, { useEffect, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
-import ImageKit from "imagekit";
 import axios from "axios";
 import ImageMasonry from "./masonry";
-import { Add, AddAPhoto, AddCircleRounded, HdrPlus } from "@mui/icons-material";
+import { AddAPhoto  } from "@mui/icons-material";
 
 
 const VisuallyHiddenInput = styled('input')({
@@ -26,7 +25,8 @@ const VisuallyHiddenInput = styled('input')({
 const Page = () => {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [filePreviews, setFilePreviews] = useState([]);
-    const [uploading, setUploading] = useState(true);
+    const [uploading, setUploading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [status, setStatus] = useState({
         open: false,
         text: ""
@@ -38,12 +38,13 @@ const Page = () => {
     }, [])
 
     const getImages = () => {
+        setLoading(true)
         axios.get('/api/image').then((res) => {
             if (res.status === 200) {
                 setFilePreviews(res?.data?.data);
             }
         }).catch((err) => console.log(err))
-        setUploading(false)
+        setLoading(false)
     }
 
     const handleFileChange = async (e: Event) => {
@@ -64,13 +65,12 @@ const Page = () => {
                 },
             }).then((res) => {
                 if (res.status == 200) {
-                    setStatus({ open: true, text: 'Files uploaded successfully' })
+                    setStatus({ open: true, text: 'File uploaded successfully' })
                     getImages();
                 } else {
-                    setStatus({ open: true, text: 'Files uploaded failed' })
+                    setStatus({ open: true, text: 'File upload failed' })
                 }
             })
-
         } catch (error) {
             setStatus({ open: true, text: 'Files uploaded failed' })
 
@@ -86,7 +86,7 @@ const Page = () => {
     return (
         <Box sx={{ width: "100%", p: "5px" , display:"flex", justifyContent:"center", alignItems:"center", minHeight:"80vh" }}>
             
-            {uploading ? <CircularProgress size={40} sx={{ color: "#fff" }} /> :
+            {loading ? <CircularProgress size={40} sx={{ color: "#fff" }} /> :
             <ImageMasonry images={filePreviews} /> }
 
             <Button

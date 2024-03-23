@@ -131,15 +131,19 @@ a {
     }
 
 
-.link:hover{
+.link:hover, .MuiListItemText-primary:hover{
   text-decoration: none;
   font-weight: 600;
-
 }
 
 .link.active{
   font-weight: 600;
 }
+
+.list.active .MuiListItemText-primary{
+  font-weight: 600;
+}
+
 .MuiButton-startIcon{
   margin: 0 !important;
 }

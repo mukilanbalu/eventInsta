@@ -12,6 +12,7 @@ const nextConfig = {
         // !! WARN !!
         ignoreBuildErrors: true,
       },
+      publicDir: '/public', 
 };
 
 export default nextConfig;

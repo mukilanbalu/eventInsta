@@ -15,7 +15,9 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { Link } from '@mui/material';
-import { usePathname } from 'next/navigation'
+import {  usePathname } from 'next/navigation'
+import { useRouter } from 'next/navigation'
+import Image from 'next/image';
 
 interface Props {
   /**
@@ -28,26 +30,32 @@ interface Props {
 const drawerWidth = 240;
 const navItems = ['Home', 'About'];
 
+
 export default function NavBar(props: Props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
-  const pathname = usePathname()
+  const pathname = usePathname();
+  const router = useRouter();
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
   };
 
+  const handleRedirect =(item)=>{
+    console.log(item)
+    router.push(`/${item.toLocaleLowerCase()}`)
+  }
+
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-      <Typography variant="h6" sx={{ my: 2 }}>
-        MUI
-      </Typography>
+      <img alt="logo" src="/e-logo.png" width={20} height={20}/>
       <Divider />
       <List>
         {navItems.map((item) => (
           <ListItem key={item} disablePadding>
             <ListItemButton sx={{ textAlign: 'center' }}>
-              <ListItemText primary={item} className={`list ${pathname === item.toLocaleLowerCase() ? 'active' : ''}`} />
+              <ListItemText onClick={()=>handleRedirect(item)} primary={item} 
+              className={`list ${pathname === `/${item.toLocaleLowerCase()}` ? 'active' : ''}`} />
             </ListItemButton>
           </ListItem>
         ))}
@@ -74,7 +82,7 @@ export default function NavBar(props: Props) {
           <Typography
             variant="h5"
             component="div"
-            sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' }}}
+            sx={{ flexGrow: 1, display: { xs: 'block', sm: 'block' }}}
           >
            Event Insta
           </Typography>
