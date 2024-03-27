@@ -5,7 +5,9 @@ import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import axios from "axios";
 import ImageMasonry from "./masonry";
-import { AddAPhoto } from "@mui/icons-material";
+import { AddAPhoto, DownloadRounded } from "@mui/icons-material";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 
 const VisuallyHiddenInput = styled('input')({
@@ -26,11 +28,13 @@ const Page = () => {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [filePreviews, setFilePreviews] = useState([]);
     const [uploading, setUploading] = useState(false);
+    const [downloading, setDownloading] = useState(false);
     const [loading, setLoading] = useState(true);
     const [status, setStatus] = useState({
         open: false,
         text: ""
     })
+    const [selectedImages, setSelectedImages] = React.useState([]);
 
 
     useEffect(() => {
@@ -72,8 +76,8 @@ const Page = () => {
                     setUploading(false);
                     setTimeout(() => {
                         getImages();;
-                      }, "3000");
-                     
+                    }, "3000");
+
                 } else {
                     setStatus({ open: true, text: 'File upload failed' })
                 }
@@ -90,11 +94,31 @@ const Page = () => {
         setStatus({ open: false, text: "" })
     }
 
+    const handleDownload = async () => {
+        setDownloading(true);
+        const zip = new JSZip();
+        await Promise.allSettled(selectedImages.map(async file => {
+            try {
+                const response = await fetch(file.url);
+                const blob = await response.blob();
+                zip.file(file.name, blob);
+            } catch (error) {
+                console.error('Error downloading file:', error);
+            }
+        }));
+        const content = await zip.generateAsync({ type: 'blob' });
+        saveAs(content, 'downloaded_files.zip');
+        setDownloading(false)
+    }
+
     return (
         <Box sx={{ width: "100%", p: "5px", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh" }}>
 
             {loading ? <CircularProgress size={40} sx={{ color: "#fff" }} /> :
-                <ImageMasonry images={filePreviews} />}
+                <ImageMasonry images={filePreviews}
+                    selectedImages={selectedImages}
+                    setSelectedImages={setSelectedImages}
+                />}
 
             <Button
                 component="label"
@@ -127,6 +151,33 @@ const Page = () => {
                     onChange={(e) => handleFileChange(e)} />
 
             </Button>
+            {selectedImages.length > 0 && <Button
+                component="label"
+                role={undefined}
+                variant="contained"
+                tabIndex={-1}
+                startIcon={
+                    downloading ?
+                        <CircularProgress size={25} sx={{ color: "#fff" }} />
+                        : <DownloadRounded sx={{ margin: "0px" }} />
+                }
+                disabled={downloading}
+                onClick={handleDownload}
+                sx={{
+                    position: "fixed",
+                    bottom: "20px",
+                    right: "100px",
+                    borderRadius: "50%",
+                    height: "60px",
+                    width: "60px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center"
+                }}
+            >
+
+            </Button>
+            }
             {status?.open && <Snackbar
                 open={true}
                 anchorOrigin={{ vertical: "top", horizontal: "right" }}
