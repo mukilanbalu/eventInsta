@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import Navbar from "@/layout/navbar";
-import "../../public/favicon-32x32.png"
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
@@ -23,9 +22,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <meta name="viewport" content="initial-scale=1, width=device-width" />
-      <link rel="icon" href="/favicon.ico" sizes="any" />
+      {/* <link rel="icon" href="/favicon.ico" sizes="any" /> */}
       <body className={inter.className} >
         <Navbar />
+
         {children}</body>
     </html>
   );

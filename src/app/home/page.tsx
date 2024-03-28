@@ -76,7 +76,7 @@ const Page = () => {
                     setUploading(false);
                     setTimeout(() => {
                         getImages();;
-                    }, "3000");
+                    }, "5000");
 
                 } else {
                     setStatus({ open: true, text: 'File upload failed' })
@@ -148,7 +148,7 @@ const Page = () => {
                     type="file"
                     id="file"
                     name="file"
-                    accept="image/*,video/mp4,video/x-m4v,video/*"
+                    accept="image/*, video/*"
                     multiple
                     onChange={(e) => handleFileChange(e)} />
 
