@@ -103,11 +103,11 @@ const Page = () => {
                 const blob = await response.blob();
                 zip.file(file.name, blob);
             } catch (error) {
-                console.error('Error downloading file:', error);
+                setStatus({ open: true, text: 'Error downloading file:' })
             }
         }));
         const content = await zip.generateAsync({ type: 'blob' });
-        saveAs(content, 'downloaded_files.zip');
+        saveAs(content, `EventInsta_${new Date().toDateString()}.zip`);
         setDownloading(false)
     }
 
@@ -125,6 +125,7 @@ const Page = () => {
                 role={undefined}
                 variant="contained"
                 tabIndex={-1}
+                disabled={uploading}
                 startIcon={
                     uploading ?
                         <CircularProgress size={25} sx={{ color: "#fff" }} />
@@ -147,7 +148,8 @@ const Page = () => {
                     type="file"
                     id="file"
                     name="file"
-                    accept="image/*"
+                    accept="image/*,video/mp4,video/x-m4v,video/*"
+                    multiple
                     onChange={(e) => handleFileChange(e)} />
 
             </Button>

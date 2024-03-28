@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Masonry from '@mui/lab/Masonry';
 import { styled } from '@mui/material/styles';
-import { Checkbox } from '@mui/material';
+import { CardMedia, Checkbox } from '@mui/material';
 
 const Label = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -15,9 +15,9 @@ const Label = styled(Paper)(({ theme }) => ({
   borderBottomRightRadius: 0,
 }));
 
-export default function ImageMasonry({ images, selectedImages,setSelectedImages }) {
+export default function ImageMasonry({ images, selectedImages, setSelectedImages }) {
 
-  
+
 
   const handleImageSelection = (image) => {
     setSelectedImages(prevSelected => {
@@ -33,7 +33,7 @@ export default function ImageMasonry({ images, selectedImages,setSelectedImages 
     <Box sx={{ width: " 100%" }}>
       <Masonry columns={3} spacing={2}>
         {images.map((item, index) => (
-          <div key={index} style={{ position: "relative", cursor:"pointer" }} onClick={() => handleImageSelection(item)}>
+          <div key={index} style={{ position: "relative", cursor: "pointer" }} onClick={() => handleImageSelection(item)}>
             <Checkbox
               checked={selectedImages.includes(item)}
               sx={{
@@ -44,22 +44,34 @@ export default function ImageMasonry({ images, selectedImages,setSelectedImages 
                 height: "20px",
                 top: " 10px",
                 '&.Mui-checked': {
-                  color: "#fff"}
+                  color: "#fff"
+                }
               }}
             />
-            <img
-              // className='photo-thumbnail'
-              srcSet={`${item.url}`}
-              src={`${item.url}`}
-              alt={item.name}
-              loading="lazy"
-              style={{
-                borderBottomLeftRadius: 4,
-                borderBottomRightRadius: 4,
-                display: 'block',
-                width: '100%',
-              }}
-            />
+            {item.fileType === "image" ?
+              <img
+                // className='photo-thumbnail'
+                srcSet={`${item.url}`}
+                src={`${item.url}`}
+                alt={item.name}
+                loading="lazy"
+                style={{
+                  borderBottomLeftRadius: 4,
+                  borderBottomRightRadius: 4,
+                  display: 'block',
+                  width: '100%',
+                }}
+              />
+              :
+
+              <CardMedia
+                component="video"
+                image={item.url}
+                title='title'
+                controls
+                src={`${item.url}`}
+              />
+            }
           </div>
         ))}
       </Masonry>

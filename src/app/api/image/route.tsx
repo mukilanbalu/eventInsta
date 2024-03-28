@@ -8,65 +8,55 @@ const imagekit = new ImageKit({
   urlEndpoint: "https://ik.imagekit.io/a1vxyxo8m/"
 });
 
-export async function GET(req, res) {
-    try {
-      const result = await new Promise((resolve, reject) => {
-        imagekit.listFiles({ skip: 0, limit: 100 , sort: "DESC_CREATED",  searchQuery : 'published = true'}, (error, result) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(result);
-          }
-        });
+export async function GET(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    const result = await new Promise((resolve, reject) => {
+      imagekit.listFiles({ skip: 0, limit: 100, sort: "DESC_CREATED", searchQuery: 'published = true' }, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
       });
-  
-      return NextResponse.json({ data: result }, { status: 200 });
-    } catch (error) {
-      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-    }
+    });
+
+    return NextResponse.json({ data: result }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
+}
 
 
-  export async function POST(req) {
-    try {
-      // Extract files from the request body
-      const  file  = await req.formData();  
-      const photo = file.get("file");
-      const bytelenght = await photo.arrayBuffer();
-      const buffer = Buffer.from(bytelenght)
+export async function POST(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    // Extract files from the request body
+    const formData = await req.formData();
 
-      // Upload the file to ImageKit
-     const result =  await new Promise((resolve, reject) => {
-        imagekit.upload({
-            file :buffer, //required
-            fileName : photo.name,   //required
-        }).then(response => {
-            resolve(response);
-    
-        }).catch(error => {
-            reject(error);
-    
-        });
+    // Get array of files from the FormData
+    const files = Array.from(formData.getAll('file'));
+
+    // Upload each file to ImageKit concurrently
+    const uploadPromises = files.map(async (file: File) => {
+      const bytelength = await file.arrayBuffer();
+      const buffer = Buffer.from(bytelength);
+
+      // Determine file type (image or video) based on MIME type
+      const fileType = file.type.startsWith('image') ? 'image' : 'video';
+      // Upload file to ImageKit
+      return imagekit.upload({
+        file: buffer,
+        fileName: file.name,
+        fileType: fileType, // Specify file type (image or video)
       });
+    });
 
+    // Wait for all upload promises to resolve
+    const responses = await Promise.all(uploadPromises);
 
-    //   // Loop through each file and upload it to ImageKits
-    //   const uploadPromises = files.map(async (file) => {
-    //     const uploadResponse = await imagekit.upload({
-    //       file: file, // File object from the request body
-    //       fileName: file.name, // Use the file name as the uploaded file name
-    //       // Add any additional options if needed
-    //     });
-    //     return uploadResponse;
-    //   });
-  
-    //   // Wait for all upload promises to resolve
-    //   const responses = await Promise.all(uploadPromises);
-  
-    //   // Return the responses from ImageKit as a JSON response
-     return NextResponse.json(result, { status: 200 });
-    } catch (error) {
-      // Handle errors
-      return NextResponse.error('Internal server error', { status: 500 });
-    }
+    // Return the responses from ImageKit as a JSON response
+    return NextResponse.json(responses, { status: 200 });
+  } catch (error) {
+    // Handle errors
+    return NextResponse.error('Internal server error', { status: 500 });
   }
+}
